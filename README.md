@@ -1,35 +1,152 @@
-# Streakzz 🔥
+# Streakzz - Project Streak Tracker
 
-A fullstack web application that allows users to track their project submissions with a visual streak system similar to GitHub's contribution graph.
+A full-stack application for tracking daily project submissions and building streaks. Built with Node.js, Express, MongoDB, React, and TypeScript.
 
 ## Features
 
-- **User Authentication**: Sign up with full name, email, and password; login with email and password
-- **Project Submission**: Submit projects with name, description, live link, and GitHub link
-- **Visual Streak Tracking**: GitHub-like contribution graph showing daily project submissions
-- **Dashboard**: Personal dashboard with project statistics and streak visualization
-- **Responsive Design**: Modern UI built with TailwindCSS
+### 🏠 Landing Page
+- Beautiful landing page with hero section, metrics, and footer
+- Gradient backgrounds and modern UI design
+- Call-to-action for registration
+
+### 👤 User Authentication & Management
+- User registration and login
+- Email verification using Nodemailer
+- JWT-based authentication
+- Delete account functionality
+- Admin and participant roles
+
+### 📊 Dashboard & Analytics
+- Personal dashboard with project submissions
+- 30-day streak visualization with color coding:
+  - **Red (1-10 days)**: Early streak
+  - **Amber (10-20 days)**: Building momentum  
+  - **Green (20-25 days)**: Strong streak
+  - **Super Green (25-30 days)**: Outstanding streak
+- Daily motivational quotes
+- Project statistics and metrics
+
+### 🚀 Project Submission
+- Project submission form with validation
+- Time restrictions (7 AM - 11:59 PM daily)
+- Success/error animations
+- Live demo and GitHub repository links
+- Scrollable project history
+
+### 👑 Admin Dashboard
+- Comprehensive admin panel
+- Participant management table
+- View all user statistics
+- Sortable and searchable participant data
+- Real-time metrics
+
+### 📧 Email Features
+- Email verification for new accounts
+- Daily project submission reminders (9 AM)
+- Professional email templates
+
+### 🎨 UI/UX Features
+- Responsive design
+- Beautiful animations with Framer Motion
+- Toast notifications
+- Loading states
+- Modern glassmorphism design
 
 ## Tech Stack
 
 ### Backend
-
-- Node.js with Express
-- TypeScript
-- MongoDB with Mongoose
-- JWT Authentication
-- bcryptjs for password hashing
-- Express Validator for input validation
+- **Node.js** with **Express.js**
+- **MongoDB** with **Mongoose**
+- **TypeScript** for type safety
+- **JWT** for authentication
+- **Nodemailer** for emails
+- **Node-cron** for scheduled tasks
+- **Express-validator** for validation
 
 ### Frontend
+- **React** with **TypeScript**
+- **Framer Motion** for animations
+- **React Hot Toast** for notifications
+- **React Hook Form** for form handling
+- **Lucide React** for icons
+- **Tailwind CSS** for styling
 
-- React 18 with TypeScript
-- Vite for build tooling
-- TailwindCSS for styling
-- React Router for navigation
-- React Hook Form with Zod validation
-- Axios for API requests
-- Lucide React for icons
+## Setup Instructions
+
+### Prerequisites
+- Node.js (v18 or higher)
+- MongoDB (local or cloud)
+- Gmail account (for email features)
+
+### Backend Setup
+
+1. **Install dependencies:**
+   ```bash
+   cd backend
+   npm install
+   ```
+
+2. **Create environment variables:**
+   Create a `.env` file in the backend folder with:
+   ```env
+   # Database Configuration
+   MONGODB_URI=mongodb://localhost:27017/streakzz
+   
+   # JWT Configuration
+   JWT_SECRET=your-super-secure-jwt-secret-key-here
+   
+   # Email Configuration (Gmail)
+   EMAIL_USER=your-email@gmail.com
+   EMAIL_PASS=your-app-password
+   
+   # Frontend URL
+   FRONTEND_URL=http://localhost:3000
+   
+   # Server Port
+   PORT=1500
+   ```
+
+3. **Gmail App Password Setup:**
+   - Enable 2-factor authentication on your Gmail account
+   - Generate an App Password for the application
+   - Use the App Password in the `EMAIL_PASS` field
+
+4. **Start the backend server:**
+   ```bash
+   npm run dev
+   ```
+
+### Frontend Setup
+
+1. **Install dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Open the application:**
+   Visit `http://localhost:3000` in your browser
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `GET /api/auth/verify-email/:token` - Verify email
+- `DELETE /api/auth/delete-account` - Delete user account
+
+### Projects
+- `POST /api/projects/submit-project` - Submit new project
+- `GET /api/projects/my-projects` - Get user's projects
+- `GET /api/projects/admin/participants` - Get all participants (Admin)
+
+### Users
+- `GET /api/users/profile` - Get user profile with streak data
 
 ## Project Structure
 
@@ -37,6 +154,9 @@ A fullstack web application that allows users to track their project submissions
 streakzz/
 ├── backend/
 │   ├── src/
+│   │   ├── index.ts
+│   │   ├── middleware/
+│   │   │   └── auth.ts
 │   │   ├── models/
 │   │   │   ├── User.ts
 │   │   │   └── Project.ts
@@ -44,194 +164,61 @@ streakzz/
 │   │   │   ├── auth.ts
 │   │   │   ├── projects.ts
 │   │   │   └── users.ts
-│   │   ├── middleware/
-│   │   │   └── auth.ts
-│   │   └── index.ts
+│   │   └── services/
+│   │       ├── emailService.ts
+│   │       └── scheduledTasks.ts
 │   ├── package.json
 │   └── tsconfig.json
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
+│   │   │   ├── LandingPage.tsx
 │   │   │   ├── Dashboard.tsx
-│   │   │   ├── LoginForm.tsx
-│   │   │   ├── RegisterForm.tsx
-│   │   │   ├── ProjectSubmissionForm.tsx
-│   │   │   └── StreakGraph.tsx
+│   │   │   ├── AdminDashboard.tsx
+│   │   │   ├── StreakGraph.tsx
+│   │   │   ├── MotivationalQuote.tsx
+│   │   │   └── ProjectSubmissionForm.tsx
 │   │   ├── contexts/
 │   │   │   └── AuthContext.tsx
 │   │   ├── services/
 │   │   │   └── api.ts
-│   │   ├── types/
-│   │   │   └── index.ts
-│   │   ├── App.tsx
-│   │   └── main.tsx
+│   │   └── types/
+│   │       └── index.ts
 │   ├── package.json
-│   └── tailwind.config.js
-└── package.json
+│   └── vite.config.ts
+└── README.md
 ```
 
-## Setup Instructions
+## Usage
 
-### Prerequisites
+### For Participants
+1. **Register** with email verification
+2. **Submit daily projects** between 7 AM - 11:59 PM
+3. **Track your streak** with the visual graph
+4. **View project history** in the projects tab
+5. **Get motivated** with daily quotes
 
-- Node.js (v16 or higher)
-- MongoDB (local installation or MongoDB Atlas)
-- npm or yarn
+### For Admins
+1. **Access admin dashboard** with admin role
+2. **Monitor all participants** and their progress
+3. **View detailed statistics** and metrics
+4. **Search and sort** participant data
 
-### Installation
+## Deployment
 
-1. **Clone the repository**
+### Backend (Vercel)
+The backend includes a `vercel.json` configuration for easy deployment to Vercel.
 
-   ```bash
-   git clone <repository-url>
-   cd streakzz
-   ```
+### Frontend (Netlify/Vercel)
+The frontend can be deployed to any static hosting service.
 
-2. **Install root dependencies**
+## Environment Variables Reference
 
-   ```bash
-   npm install
-   ```
-
-3. **Setup Backend**
-
-   ```bash
-   cd backend
-   npm install
-   ```
-
-4. **Setup Frontend**
-
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-5. **Environment Configuration**
-
-   Create a `.env` file in the `backend` directory:
-
-   ```env
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/streakzz
-   JWT_SECRET=your-super-secret-jwt-key-here
-   NODE_ENV=development
-   ```
-
-### Running the Application
-
-1. **Start MongoDB** (if running locally)
-
-   ```bash
-   mongod
-   ```
-
-2. **Development Mode** (runs both frontend and backend)
-
-   ```bash
-   npm run dev
-   ```
-
-   Or run them separately:
-
-   **Backend only:**
-
-   ```bash
-   npm run dev:backend
-   ```
-
-   **Frontend only:**
-
-   ```bash
-   npm run dev:frontend
-   ```
-
-3. **Access the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:5000
-
-### Building for Production
-
-1. **Build both applications**
-
-   ```bash
-   npm run build
-   ```
-
-2. **Start production server**
-   ```bash
-   cd backend
-   npm start
-   ```
-
-## API Endpoints
-
-### Authentication
-
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-
-### Projects
-
-- `POST /api/projects` - Submit a new project (authenticated)
-- `GET /api/projects/my-projects` - Get user's projects (authenticated)
-- `GET /api/projects/all` - Get all projects (public)
-
-### Users
-
-- `GET /api/users/profile` - Get current user profile with streak data (authenticated)
-- `GET /api/users/:userId` - Get public user profile (public)
-
-## Database Schema
-
-### User Model
-
-```typescript
-{
-  fullName: string;
-  email: string; // unique
-  password: string; // hashed
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-
-### Project Model
-
-```typescript
-{
-  userId: ObjectId; // reference to User
-  name: string;
-  description: string;
-  liveLink: string;
-  githubLink: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-```
-
-## Features in Detail
-
-### Streak Visualization
-
-- Shows a year-long contribution graph
-- Each day is represented by a colored square
-- Color intensity indicates the number of projects submitted that day
-- Hover effects show exact dates and project counts
-
-### Project Submission
-
-- Form validation with Zod schemas
-- URL validation for live and GitHub links
-- Real-time form error handling
-- Success feedback and automatic dashboard refresh
-
-### Authentication Flow
-
-- JWT-based authentication
-- Secure password hashing with bcrypt
-- Protected routes on both frontend and backend
-- Automatic token refresh and management
+### Required Environment Variables
+- `MONGODB_URI`: MongoDB connection string
+- `JWT_SECRET`: Secret key for JWT tokens
+- `FRONTEND_URL`: Frontend application URL
+- `PORT`: Backend server port
 
 ## Contributing
 
@@ -245,6 +232,6 @@ streakzz/
 
 This project is licensed under the MIT License.
 
-## Support
+---
 
-If you encounter any issues or have questions, please open an issue on GitHub.
+**Built with ❤️ by the Streakzz Team**

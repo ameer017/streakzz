@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User';
+import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ router.post('/register', [
     const { fullName, email, password } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email, isDeleted: false });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
@@ -44,7 +45,8 @@ router.post('/register', [
       user: {
         id: user._id,
         fullName: user.fullName,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
@@ -67,7 +69,7 @@ router.post('/login', [
     const { email, password } = req.body;
 
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, isDeleted: false });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -88,11 +90,33 @@ router.post('/login', [
       user: {
         id: user._id,
         fullName: user.fullName,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete Account
+router.delete('/delete-account', authenticateToken, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Soft delete the user
+    user.isDeleted = true;
+    await user.save();
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    console.error('Delete account error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

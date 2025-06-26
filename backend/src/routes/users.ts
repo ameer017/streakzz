@@ -9,6 +9,13 @@ const router = express.Router();
 router.get('/profile', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user!;
+    
+    // Check if user account is deleted
+    const fullUser = await User.findById(user._id);
+    if (!fullUser || fullUser.isDeleted) {
+      return res.status(404).json({ message: 'User account not found' });
+    }
+
     const projects = await Project.find({ userId: user._id }).sort({ createdAt: -1 });
 
     // Generate streak data for the last 365 days
@@ -36,6 +43,7 @@ router.get('/profile', authenticateToken, async (req: AuthRequest, res: Response
         id: user._id,
         fullName: user.fullName,
         email: user.email,
+        role: fullUser.role,
         joinedAt: user.createdAt
       },
       stats: {
@@ -53,7 +61,7 @@ router.get('/:userId', async (req: AuthRequest, res: Response) => {
   try {
     const { userId } = req.params;
     
-    const user = await User.findById(userId);
+    const user = await User.findOne({ _id: userId, isDeleted: false });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

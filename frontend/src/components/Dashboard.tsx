@@ -4,16 +4,24 @@ import { usersAPI, projectsAPI } from '../services/api';
 import type { UserProfile, Project } from '../types';
 import StreakGraph from './StreakGraph';
 import ProjectSubmissionForm from './ProjectSubmissionForm';
-import { LogOut, Plus, User, BarChart3, Table, ExternalLink, Github } from 'lucide-react';
+import MotivationalQuote from './MotivationalQuote';
+import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
+import { LogOut, Plus, User, BarChart3, Table, ExternalLink, Github, Settings, UserX, Crown, Menu, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'dashboard' | 'projects'>('dashboard');
   const [userProjects, setUserProjects] = useState<Project[]>([]);
   const [projectsLoading, setProjectsLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -69,6 +77,32 @@ const Dashboard: React.FC = () => {
     refreshData();
   };
 
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      const response = await fetch('http://localhost:1500/api/auth/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        toast.success('Account deleted successfully');
+        logout();
+      } else {
+        const data = await response.json();
+        toast.error(data.message || 'Failed to delete account');
+      }
+    } catch (error) {
+      toast.error('Failed to delete account');
+    } finally {
+      setDeletingAccount(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -86,28 +120,123 @@ const Dashboard: React.FC = () => {
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
+            {/* Logo */}
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900">Streakzz</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {user?.fullName}</span>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
+              <span className="text-gray-700 text-sm lg:text-base">Welcome, {user?.fullName}</span>
+              
+              {user?.role === 'admin' && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  <span className="hidden lg:inline">Admin</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                title="Delete Account"
+              >
+                <UserX className="h-4 w-4 mr-2" />
+                <span className="hidden lg:inline">Delete Account</span>
+              </button>
+
               <button
                 onClick={() => setShowProjectForm(true)}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Submit Project
+                <span className="hidden lg:inline">Submit Project</span>
               </button>
+
               <button
                 onClick={logout}
                 className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
               >
                 <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <span className="hidden lg:inline">Logout</span>
+              </button>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-4 pt-2 pb-3 space-y-2 bg-gray-50 border-t">
+              <div className="px-0 py-2 border-b border-gray-200">
+                <span className="text-gray-700 text-sm font-medium">Welcome, {user?.fullName}</span>
+              </div>
+              
+              {user?.role === 'admin' && (
+                <button
+                  onClick={() => {
+                    navigate('/admin');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center px-0 py-3 text-base font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-md transition-colors"
+                >
+                  <Crown className="h-5 w-5 mr-3" />
+                  Admin Dashboard
+                </button>
+              )}
+
+              <button
+                onClick={() => {
+                  setShowProjectForm(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center px-0 py-3 text-base font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+              >
+                <Plus className="h-5 w-5 mr-3" />
+                Submit Project
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowDeleteModal(true);
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center px-0 py-3 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors"
+              >
+                <UserX className="h-5 w-5 mr-3" />
+                Delete Account
+              </button>
+
+              <button
+                onClick={() => {
+                  logout();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center px-0 py-3 text-base font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                <LogOut className="h-5 w-5 mr-3" />
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Main Content */}
@@ -140,9 +269,12 @@ const Dashboard: React.FC = () => {
           </div>
 
           {viewMode === 'dashboard' ? (
-            <>
+            <div className="space-y-6">
+              {/* Motivational Quote */}
+              <MotivationalQuote />
+
               {/* Profile Header */}
-              <div className="bg-white shadow rounded-lg p-6 mb-6">
+              <div className="bg-white shadow rounded-lg p-6">
                 <div className="flex items-center">
                   <div className="bg-primary-100 rounded-full p-3">
                     <User className="h-8 w-8 text-primary-600" />
@@ -150,9 +282,11 @@ const Dashboard: React.FC = () => {
                   <div className="ml-4">
                     <h2 className="text-2xl font-bold text-gray-900">{userProfile?.user.fullName}</h2>
                     <p className="text-gray-600">{userProfile?.user.email}</p>
-                    <p className="text-sm text-gray-500">
-                      {userProfile?.stats.totalProjects} projects submitted
-                    </p>
+                    <div className="flex items-center space-x-4 mt-1">
+                      <p className="text-sm text-gray-500">
+                        {userProfile?.stats.totalProjects} projects submitted
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -163,16 +297,16 @@ const Dashboard: React.FC = () => {
               )}
 
               {/* Stats Cards */}
-              <div className="mt-6 flex space-x-4">
-                <div className="bg-white shadow rounded-lg p-4 flex-1 text-center">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white shadow rounded-lg p-6 text-center">
                   <h3 className="text-sm font-medium text-gray-900">Total Projects</h3>
-                  <p className="text-2xl font-bold text-primary-600 mt-1">
+                  <p className="text-3xl font-bold text-primary-600 mt-2">
                     {userProfile?.stats.totalProjects || 0}
                   </p>
                 </div>
-                <div className="bg-white shadow rounded-lg p-4 flex-1 text-center">
+                <div className="bg-white shadow rounded-lg p-6 text-center">
                   <h3 className="text-sm font-medium text-gray-900">This Month</h3>
-                  <p className="text-2xl font-bold text-green-600 mt-1">
+                  <p className="text-3xl font-bold text-green-600 mt-2">
                     {/* Calculate current month submissions */}
                     {userProfile ? Object.entries(userProfile.stats.streakData)
                       .filter(([date]) => {
@@ -183,9 +317,9 @@ const Dashboard: React.FC = () => {
                       .reduce((sum, [, count]) => sum + count, 0) : 0}
                   </p>
                 </div>
-                <div className="bg-white shadow rounded-lg p-4 flex-1 text-center">
+                <div className="bg-white shadow rounded-lg p-6 text-center">
                   <h3 className="text-sm font-medium text-gray-900">Current Streak</h3>
-                  <p className="text-2xl font-bold text-orange-600 mt-1">
+                  <p className="text-3xl font-bold text-orange-600 mt-2">
                     {/* Calculate current streak */}
                     {userProfile ? (() => {
                       const today = new Date();
@@ -204,112 +338,153 @@ const Dashboard: React.FC = () => {
                   </p>
                 </div>
               </div>
-            </>
+            </div>
           ) : (
             <>
               {/* Projects List View */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-xl font-semibold text-gray-900">Projects</h2>
-                    <p className="text-sm text-gray-500">{userProjects.length} project{userProjects.length !== 1 ? 's' : ''} submitted</p>
+              <div className="bg-white shadow rounded-lg">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">My Projects</h2>
+                      <p className="text-sm text-gray-500">{userProjects.length} project{userProjects.length !== 1 ? 's' : ''} submitted</p>
+                    </div>
                   </div>
                 </div>
                 
-                {projectsLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-                    <p className="ml-3 text-gray-600">Loading projects...</p>
-                  </div>
-                ) : userProjects.length === 0 ? (
-                  <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                    <div className="bg-gray-100 rounded-full p-3 w-16 h-16 mx-auto mb-4">
-                      <Table className="h-10 w-10 text-gray-400" />
+                <div className="max-h-96 overflow-y-auto">
+                  {projectsLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+                      <p className="ml-3 text-gray-600">Loading projects...</p>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
-                    <p className="text-gray-600 mb-4">Submit your first project to get started!</p>
-                    <button
-                      onClick={() => setShowProjectForm(true)}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Submit Project
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {userProjects.map((project, index) => (
-                      <div
-                        key={project.id}
-                        className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+                  ) : userProjects.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="bg-gray-100 rounded-full p-3 w-16 h-16 mx-auto mb-4">
+                        <Table className="h-10 w-10 text-gray-400" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
+                      <p className="text-gray-600 mb-4">Submit your first project to get started!</p>
+                      <button
+                        onClick={() => setShowProjectForm(true)}
+                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0">
-                                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-                                  <div className="w-3 h-3 bg-primary-600 rounded-full"></div>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Submit Project
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-200">
+                      {userProjects.map((project, index) => (
+                        <motion.div
+                          key={project.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="p-6 hover:bg-gray-50 transition-colors duration-200"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0">
+                                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                                    <div className="w-4 h-4 bg-primary-600 rounded-full"></div>
+                                  </div>
+                                </div>
+                                <div className="ml-4 flex-1 min-w-0">
+                                  <h3 className="text-lg font-medium text-gray-900 truncate">
+                                    {project.name}
+                                  </h3>
+                                  <p className="text-sm text-gray-500 mt-1">
+                                    {project.description.length > 120 
+                                      ? `${project.description.substring(0, 120)}...` 
+                                      : project.description
+                                    }
+                                  </p>
+                                  <p className="text-xs text-gray-400 mt-2">
+                                    Submitted on {new Date(project.submittedAt).toLocaleDateString('en-US', {
+                                      month: 'long',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </p>
                                 </div>
                               </div>
-                              <div className="ml-4 flex-1 min-w-0">
-                                <h3 className="text-lg font-medium text-gray-900 truncate">
-                                  {project.name}
-                                </h3>
-                                <p className="text-sm text-gray-500 truncate">
-                                  {project.description.length > 80 
-                                    ? `${project.description.substring(0, 80)}...` 
-                                    : project.description
-                                  }
-                                </p>
-                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-center space-x-4 ml-6">
-                            <div className="text-right">
-                              <p className="text-sm font-medium text-gray-900">
-                                {new Date(project.submittedAt).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {new Date(project.submittedAt).toLocaleDateString('en-US', { weekday: 'short' })}
-                              </p>
-                            </div>
-                            <div className="flex space-x-2">
+                            <div className="flex items-center space-x-3 ml-6">
                               <a
                                 href={project.liveLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center px-3 py-1.5 bg-primary-600 text-white text-xs font-medium rounded hover:bg-primary-700 transition-colors"
+                                className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
                                 title="View Live Site"
                               >
-                                <ExternalLink className="h-3 w-3 mr-1" />
-                                Live
+                                <ExternalLink className="h-4 w-4 mr-2" />
+                                Live Demo
                               </a>
                               <a
                                 href={project.githubLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center px-3 py-1.5 bg-gray-600 text-white text-xs font-medium rounded hover:bg-gray-700 transition-colors"
+                                className="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
                                 title="View GitHub Repository"
                               >
-                                <Github className="h-3 w-3 mr-1" />
-                                Code
+                                <Github className="h-4 w-4 mr-2" />
+                                Source Code
                               </a>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}
         </div>
       </div>
+
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4"
+          >
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <UserX className="w-6 h-6 text-red-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-gray-900">Delete Account</h3>
+                <p className="text-sm text-gray-600">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete your account? All your data, including projects and streak information, will be permanently removed.
+            </p>
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deletingAccount ? 'Deleting...' : 'Delete Account'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* Project Submission Modal */}
       {showProjectForm && (

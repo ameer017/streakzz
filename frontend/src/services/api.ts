@@ -30,6 +30,16 @@ export const authAPI = {
     const response = await api.post('/auth/login', data);
     return response.data;
   },
+
+  deleteAccount: async (): Promise<{ message: string }> => {
+    const response = await api.delete('/auth/delete-account');
+    return response.data;
+  },
+
+  verifyEmail: async (token: string): Promise<{ message: string }> => {
+    const response = await api.get(`/auth/verify-email/${token}`);
+    return response.data;
+  },
 };
 
 // Projects API
@@ -47,6 +57,11 @@ export const projectsAPI = {
   getAllProjects: async (): Promise<Project[]> => {
     const response = await api.get('/projects/all');
     return response.data.projects;
+  },
+
+  getParticipants: async (): Promise<any[]> => {
+    const response = await api.get('/projects/admin/participants');
+    return response.data.participants;
   },
 };
 
