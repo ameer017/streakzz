@@ -16,12 +16,10 @@ import {
   ExternalLink,
   Github,
   UserX,
-  Menu,
-  X,
 } from "lucide-react";
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -127,6 +125,8 @@ const Dashboard: React.FC = () => {
       </div>
     );
   }
+
+  if (mobileMenuOpen) return;
 
   return (
     <div className="min-h-screen bg-gray-50">
