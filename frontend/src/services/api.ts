@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { AuthResponse, Project, UserProfile } from '../types';
 
-const API_BASE_URL = 'http://localhost:1500/api';
+const API_BASE_URL = import.meta.env.VITE_APP_BACKEND_URL
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -22,22 +22,22 @@ api.interceptors.request.use((config) => {
 // Auth API
 export const authAPI = {
   register: async (data: { fullName: string; email: string; password: string }): Promise<AuthResponse> => {
-    const response = await api.post('/auth/register', data);
+    const response = await api.post('/api/auth/register', data);
     return response.data;
   },
 
   login: async (data: { email: string; password: string }): Promise<AuthResponse> => {
-    const response = await api.post('/auth/login', data);
+    const response = await api.post('/api/auth/login', data);
     return response.data;
   },
 
   deleteAccount: async (): Promise<{ message: string }> => {
-    const response = await api.delete('/auth/delete-account');
+    const response = await api.delete('/api/auth/delete-account');
     return response.data;
   },
 
   verifyEmail: async (token: string): Promise<{ message: string }> => {
-    const response = await api.get(`/auth/verify-email/${token}`);
+    const response = await api.get(`/api/auth/verify-email/${token}`);
     return response.data;
   },
 };
@@ -45,22 +45,22 @@ export const authAPI = {
 // Projects API
 export const projectsAPI = {
   submit: async (data: { name: string; description: string; liveLink: string; githubLink: string }): Promise<Project> => {
-    const response = await api.post('/projects/submit-project', data);
+    const response = await api.post('/api/projects/submit-project', data);
     return response.data.project;
   },
 
   getMyProjects: async (): Promise<Project[]> => {
-    const response = await api.get('/projects/my-projects');
+    const response = await api.get('/api/projects/my-projects');
     return response.data.projects;
   },
 
   getAllProjects: async (): Promise<Project[]> => {
-    const response = await api.get('/projects/all');
+    const response = await api.get('/api/projects/all');
     return response.data.projects;
   },
 
   getParticipants: async (): Promise<any[]> => {
-    const response = await api.get('/projects/admin/participants');
+    const response = await api.get('/api/projects/admin/participants');
     return response.data.participants;
   },
 };
@@ -68,12 +68,12 @@ export const projectsAPI = {
 // Users API
 export const usersAPI = {
   getProfile: async (): Promise<UserProfile> => {
-    const response = await api.get('/users/profile');
+    const response = await api.get('/api/users/profile');
     return response.data;
   },
 
   getUserProfile: async (userId: string): Promise<UserProfile> => {
-    const response = await api.get(`/users/${userId}`);
+    const response = await api.get(`/api/users/${userId}`);
     return response.data;
   },
 };

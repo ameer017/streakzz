@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowRight,
   Users,
   Trophy,
   Target,
@@ -30,6 +29,8 @@ const LandingPage: React.FC = () => {
     animate: { opacity: 1, scale: 1 },
     transition: { duration: 0.6 },
   };
+
+  const updatedDate = new Date().getFullYear();
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -182,7 +183,9 @@ const LandingPage: React.FC = () => {
       <footer className="relative z-10 border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="border-t border-gray-200 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm">© 2025 Streakzz.</p>
+            <p className="text-gray-500 text-sm">
+              © {updatedDate} Streakzz.
+            </p>
             <div className="flex items-center space-x-2 mt-4 md:mt-0">
               <span className="text-gray-500 text-sm">Made with Love</span>
               <span className="text-gray-500 text-sm">by developers</span>
