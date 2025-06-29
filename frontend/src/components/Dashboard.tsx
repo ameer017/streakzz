@@ -345,32 +345,34 @@ const Dashboard: React.FC = () => {
                       </button>
                     </div>
                   ) : (
-                    <div className="divide-y divide-gray-200">
+                    <div className="divide-y divide-gray-300">
                       {userProjects.map((project, index) => (
                         <motion.div
                           key={project.id}
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.1 }}
-                          className="p-6 hover:bg-gray-50 transition-colors duration-200"
+                          className="p-4 sm:p-6 hover:bg-gray-50 transition-colors duration-200 border-l-4 border-l-transparent hover:border-l-primary-500"
                         >
-                          <div className="flex items-center justify-between">
+                          {/* Mobile and Desktop Layout */}
+                          <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+                            {/* Project Info */}
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center">
+                              <div className="flex items-start sm:items-center">
                                 <div className="flex-shrink-0">
-                                  <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                                    <div className="w-4 h-4 bg-primary-600 rounded-full"></div>
+                                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-primary-600 rounded-full"></div>
                                   </div>
                                 </div>
-                                <div className="ml-4 flex-1 min-w-0">
-                                  <h3 className="text-lg font-medium text-gray-900 truncate">
+                                <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                                  <h3 className="text-base sm:text-lg font-medium text-gray-900 truncate">
                                     {project.name}
                                   </h3>
                                   <p className="text-sm text-gray-500 mt-1">
-                                    {project.description.length > 120
+                                    {project.description.length > 100
                                       ? `${project.description.substring(
                                           0,
-                                          120
+                                          100
                                         )}...`
                                       : project.description}
                                   </p>
@@ -379,36 +381,38 @@ const Dashboard: React.FC = () => {
                                     {new Date(
                                       project.submittedAt
                                     ).toLocaleDateString("en-US", {
-                                      month: "long",
+                                      month: "short",
                                       day: "numeric",
                                       year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
                                     })}
                                   </p>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center space-x-3 ml-6">
+                            
+                            {/* Action Buttons */}
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:ml-6">
                               <a
                                 href={project.liveLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                                className="inline-flex items-center justify-center px-3 py-2 sm:px-4 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
                                 title="View Live Site"
                               >
                                 <ExternalLink className="h-4 w-4 mr-2" />
-                                Live Demo
+                                <span className="sm:hidden">Live</span>
+                                <span className="hidden sm:inline">Live Demo</span>
                               </a>
                               <a
                                 href={project.githubLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
+                                className="inline-flex items-center justify-center px-3 py-2 sm:px-4 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors"
                                 title="View GitHub Repository"
                               >
                                 <Github className="h-4 w-4 mr-2" />
-                                Source Code
+                                <span className="sm:hidden">Code</span>
+                                <span className="hidden sm:inline">Source Code</span>
                               </a>
                             </div>
                           </div>
