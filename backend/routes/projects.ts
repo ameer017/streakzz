@@ -101,20 +101,36 @@ router.get('/admin/participants', authenticateToken, async (req: AuthRequest, re
             participants.map(async (participant) => {
                 const projects = await Project.find({ userId: participant._id });
                 
-                // Calculate streak
-                const today = new Date();
+                // Calculate current streak - simplified approach
                 let currentStreak = 0;
-                for (let i = 0; i < 365; i++) {
-                    const date = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
-                    const dateKey = date.toISOString().split('T')[0];
-                    const dayProjects = projects.filter(p => 
-                        p.createdAt.toISOString().split('T')[0] === dateKey
-                    );
+                
+                if (projects.length > 0) {
+                    // Get unique project dates sorted by most recent first
+                    const projectDates = [...new Set(projects.map(p => 
+                        p.createdAt.toISOString().split('T')[0]
+                    ))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
                     
-                    if (dayProjects.length > 0) {
-                        currentStreak++;
-                    } else {
-                        break;
+                    const today = new Date();
+                    const todayStr = today.toISOString().split('T')[0];
+                    
+                    // Start from the most recent project date and count consecutive days
+                    let checkDate = new Date(projectDates[0]);
+                    
+                    // If the most recent project is not today, check if it's within the last 2 days to be considered "current"
+                    const daysSinceLastProject = Math.floor((today.getTime() - checkDate.getTime()) / (24 * 60 * 60 * 1000));
+                    
+                    if (daysSinceLastProject <= 1) { // Allow 1 day gap (yesterday is still current)
+                        // Count consecutive days backwards from the most recent project
+                        let i = 0;
+                        while (i < projectDates.length) {
+                            const expectedDateStr = new Date(checkDate.getTime() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+                            if (projectDates.includes(expectedDateStr)) {
+                                currentStreak++;
+                                i++;
+                            } else {
+                                break;
+                            }
+                        }
                     }
                 }
 

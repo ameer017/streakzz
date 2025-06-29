@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Users, Calendar, Search, Mail, LogOut } from "lucide-react";
-import api from "../services/api";
+import { projectsAPI } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 
 interface Participant {
@@ -30,8 +30,8 @@ const AdminDashboard: React.FC = () => {
 
   const fetchParticipants = async () => {
     try {
-      const response = await api.get("/projects/admin/participants");
-      setParticipants(response.data.participants);
+      const participants = await projectsAPI.getParticipants();
+      setParticipants(participants);
     } catch (error) {
       console.error("Error fetching participants:", error);
     } finally {
@@ -122,11 +122,21 @@ const AdminDashboard: React.FC = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <div className=" md:flex items-center space-x-3">
+            <div className="hidden md:flex items-center space-x-3">
               <button
                 onClick={logout}
                 className="inline-flex items-center px-3 py-2 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
                 title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="inline-flex items-center px-2 py-2 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
               >
                 <LogOut className="h-4 w-4" />
               </button>
@@ -153,25 +163,24 @@ const AdminDashboard: React.FC = () => {
         )}
       </nav>
 
-      <div className="flex-1 flex flex-col max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 w-full">
+      <div className="flex-1 flex flex-col max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8 w-full">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 flex-shrink-0"
+          className="mb-6 sm:mb-8 flex-shrink-0"
         >
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Admin Dashboard
           </h1>
-          <p className="text-gray-600">
+          <p className="text-sm sm:text-base text-gray-600 mb-4">
             Manage participants and monitor platform activity
           </p>
 
-          {""}
-          <div className="flex items-center space-x-4 mr-6 mt-4">
-            <div className="text-right">
+          <div className="flex items-center space-x-4">
+            <div className="text-left sm:text-right">
               <div className="flex items-center">
-                <p className="text-3xl font-medium text-gray-900">
+                <p className="text-lg sm:text-3xl font-medium text-gray-900">
                   {user?.fullName}
                 </p>
               </div>
@@ -185,34 +194,34 @@ const AdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 flex-shrink-0"
+          className="grid grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8 flex-shrink-0"
         >
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <Users className="w-6 h-6 text-blue-600" />
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
                   Total Participants
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">
                   {stats.totalParticipants}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border">
             <div className="flex items-center">
               <div className="p-2 bg-orange-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-orange-600" />
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
+              <div className="ml-3 sm:ml-4">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
                   Total Projects
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">
                   {stats.totalProjects}
                 </p>
               </div>
@@ -225,17 +234,17 @@ const AdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white p-6 rounded-lg shadow-sm border mb-6 flex-shrink-0"
+          className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border mb-4 sm:mb-6 flex-shrink-0"
         >
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
                 placeholder="Search participants..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="pl-8 sm:pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
               />
             </div>
           </div>
@@ -248,104 +257,102 @@ const AdminDashboard: React.FC = () => {
           transition={{ delay: 0.3 }}
           className="bg-white shadow-sm rounded-lg border overflow-hidden flex-1 flex flex-col min-h-0"
         >
-          <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+          <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex-shrink-0">
             <h2 className="text-lg font-semibold text-gray-900">
               Participants
             </h2>
           </div>
 
+          {/* Scrollable Table */}
           <div className="flex-1 overflow-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort("name")}
-                  >
-                    Name{" "}
-                    {sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")}
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort("projectCount")}
-                  >
-                    Projects{" "}
-                    {sortBy === "projectCount" &&
-                      (sortOrder === "asc" ? "↑" : "↓")}
-                  </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort("streakCount")}
-                  >
-                    Streak{" "}
-                    {sortBy === "streakCount" &&
-                      (sortOrder === "asc" ? "↑" : "↓")}
-                  </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort("joinedAt")}
-                  >
-                    Joined{" "}
-                    {sortBy === "joinedAt" && (sortOrder === "asc" ? "↑" : "↓")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredAndSortedParticipants.map((participant, index) => (
-                  <motion.tr
-                    key={participant.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="hover:bg-gray-50"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <span className="text-blue-600 font-medium">
-                            {participant.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {participant.name}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap"
+                      onClick={() => handleSort("name")}
+                    >
+                      Name{" "}
+                      {sortBy === "name" && (sortOrder === "asc" ? "↑" : "↓")}
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      Email
+                    </th>
+                    <th
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap"
+                      onClick={() => handleSort("projectCount")}
+                    >
+                      Projects{" "}
+                      {sortBy === "projectCount" &&
+                        (sortOrder === "asc" ? "↑" : "↓")}
+                    </th>
+                    <th
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap"
+                      onClick={() => handleSort("streakCount")}
+                    >
+                      Streak{" "}
+                      {sortBy === "streakCount" &&
+                        (sortOrder === "asc" ? "↑" : "↓")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredAndSortedParticipants.map((participant, index) => (
+                    <motion.tr
+                      key={participant.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="hover:bg-gray-50"
+                    >
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-blue-600 font-medium text-sm">
+                              {participant.name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="ml-2 sm:ml-4 min-w-0">
+                            <div className="text-sm font-medium text-gray-900 truncate">
+                              {participant.name}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <Mail className="w-4 h-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-900">
-                          {participant.email}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center min-w-0">
+                          <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mr-1 sm:mr-2 flex-shrink-0" />
+                          <span className="text-sm text-gray-900 truncate">
+                            {participant.email}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                        <span className="text-sm font-medium text-gray-900">
+                          {participant.projectCount}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-gray-900">
-                        {participant.projectCount}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStreakColor(
-                          participant.streakCount
-                        )}`}
-                      >
-                        {participant.streakCount} days (
-                        {getStreakLabel(participant.streakCount)})
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(participant.joinedAt).toLocaleDateString()}
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${getStreakColor(
+                            participant.streakCount
+                          )}`}
+                        >
+                          <span className="hidden sm:inline">
+                            {participant.streakCount} days (
+                            {getStreakLabel(participant.streakCount)})
+                          </span>
+                          <span className="sm:hidden">
+                            {participant.streakCount}d
+                          </span>
+                        </span>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </motion.div>
       </div>
