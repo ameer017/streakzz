@@ -31,6 +31,7 @@ const Dashboard: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [streakData, setStreakData] = useState<any>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -44,7 +45,17 @@ const Dashboard: React.FC = () => {
       }
     };
 
+    const fetchStreakData = async () => {
+      try {
+        const streak = await projectsAPI.getMyStreak();
+        setStreakData(streak);
+      } catch (error) {
+        console.error("Error fetching streak data:", error);
+      }
+    };
+
     fetchProfile();
+    fetchStreakData();
   }, []);
 
   const fetchUserProjects = async () => {
@@ -74,6 +85,9 @@ const Dashboard: React.FC = () => {
       try {
         const profile = await usersAPI.getProfile();
         setUserProfile(profile);
+        // Refresh streak data
+        const streak = await projectsAPI.getMyStreak();
+        setStreakData(streak);
         // Refresh projects if they were loaded
         if (userProjects.length > 0) {
           const projects = await projectsAPI.getMyProjects();
@@ -244,7 +258,7 @@ const Dashboard: React.FC = () => {
               )}
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="bg-white shadow rounded-lg p-6 text-center">
                   <h3 className="text-sm font-medium text-gray-900">
                     Total Projects
@@ -278,26 +292,22 @@ const Dashboard: React.FC = () => {
                     Current Streak
                   </h3>
                   <p className="text-3xl font-bold text-orange-600 mt-2">
-                    {/* Calculate current streak */}
-                    {userProfile
-                      ? (() => {
-                          const today = new Date();
-                          let streak = 0;
-                          for (let i = 0; i < 365; i++) {
-                            const date = new Date(
-                              today.getTime() - i * 24 * 60 * 60 * 1000
-                            );
-                            const dateKey = date.toISOString().split("T")[0];
-                            if (userProfile.stats.streakData[dateKey] > 0) {
-                              streak++;
-                            } else {
-                              break;
-                            }
-                          }
-                          return streak;
-                        })()
-                      : 0}
+                    {streakData?.currentStreak || 0}
                   </p>
+                  {streakData?.longestStreak && streakData.longestStreak > streakData.currentStreak && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Longest: {streakData.longestStreak} days
+                    </p>
+                  )}
+                </div>
+                <div className="bg-white shadow rounded-lg p-6 text-center">
+                  <h3 className="text-sm font-medium text-gray-900">
+                    Longest Streak
+                  </h3>
+                  <p className="text-3xl font-bold text-purple-600 mt-2">
+                    {streakData?.longestStreak || 0}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">days</p>
                 </div>
               </div>
             </div>
@@ -376,6 +386,23 @@ const Dashboard: React.FC = () => {
                                         )}...`
                                       : project.description}
                                   </p>
+                                  {project.technologies && project.technologies.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-2">
+                                      {project.technologies.slice(0, 3).map((tech) => (
+                                        <span
+                                          key={tech}
+                                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                        >
+                                          {tech}
+                                        </span>
+                                      ))}
+                                      {project.technologies.length > 3 && (
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                          +{project.technologies.length - 3} more
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
                                   <p className="text-xs text-gray-400 mt-2">
                                     Submitted on{" "}
                                     {new Date(

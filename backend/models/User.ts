@@ -6,6 +6,10 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: 'participant' | 'admin';
+  currentStreak: number;
+  longestStreak: number;
+  lastSubmissionDate: Date | null;
+  firstSubmissionDate: Date | null;
   createdAt: Date;
   isDeleted: boolean;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -33,6 +37,22 @@ const UserSchema: Schema = new Schema({
     type: String,
     enum: ['participant', 'admin'],
     default: 'participant'
+  },
+  currentStreak: {
+    type: Number,
+    default: 0
+  },
+  longestStreak: {
+    type: Number,
+    default: 0
+  },
+  lastSubmissionDate: {
+    type: Date,
+    default: null
+  },
+  firstSubmissionDate: {
+    type: Date,
+    default: null
   },
   isDeleted: {
     type: Boolean,

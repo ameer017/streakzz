@@ -6,6 +6,7 @@ export interface IProject extends Document {
   description: string;
   liveLink: string;
   githubLink: string;
+  technologies: string[];
   submittedAt: Date;
   createdAt: Date;
 }
@@ -35,6 +36,11 @@ const ProjectSchema: Schema = new Schema({
     type: String,
     required: true,
     trim: true
+  },
+  technologies: {
+    type: [String],
+    required: true,
+    default: []
   },
   createdAt:{
     type: Date,

@@ -26,7 +26,8 @@ router.post('/submit-project', authenticateToken, checkSubmissionTime, [
     body('name').trim().isLength({ min: 1 }).withMessage('Project name is required'),
     body('description').trim().isLength({ min: 50 }).withMessage('Description must be at least 50 characters'),
     body('liveLink').isURL().withMessage('Please provide a valid live link URL'),
-    body('githubLink').isURL().withMessage('Please provide a valid GitHub link URL')
+    body('githubLink').isURL().withMessage('Please provide a valid GitHub link URL'),
+    body('technologies').isArray({ min: 1 }).withMessage('At least one technology must be selected')
 ], async (req: AuthRequest, res: Response) => {
     try {
         const errors = validationResult(req);
@@ -34,18 +35,58 @@ router.post('/submit-project', authenticateToken, checkSubmissionTime, [
             return res.status(400).json({ errors: errors.array() });
         }
 
-
-        const { name, description, liveLink, githubLink } = req.body;
+        const { name, description, liveLink, githubLink, technologies } = req.body;
 
         const project = new Project({
             userId: req.user!._id,
             name,
             description,
             liveLink,
-            githubLink
+            githubLink,
+            technologies
         });
 
         await project.save();
+
+        // Update user streak
+        const user = await User.findById(req.user!._id);
+        if (user) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const lastSubmission = user.lastSubmissionDate ? new Date(user.lastSubmissionDate) : null;
+            if (lastSubmission) {
+                lastSubmission.setHours(0, 0, 0, 0);
+            }
+
+            if (!user.firstSubmissionDate) {
+                // First submission ever
+                user.firstSubmissionDate = today;
+                user.currentStreak = 1;
+                user.longestStreak = 1;
+            } else if (!lastSubmission) {
+                // No previous submission (shouldn't happen but just in case)
+                user.currentStreak = 1;
+                user.longestStreak = Math.max(user.longestStreak, 1);
+            } else {
+                const daysDiff = Math.floor((today.getTime() - lastSubmission.getTime()) / (1000 * 60 * 60 * 24));
+                
+                if (daysDiff === 1) {
+                    // Consecutive day - increment streak
+                    user.currentStreak += 1;
+                    user.longestStreak = Math.max(user.longestStreak, user.currentStreak);
+                } else if (daysDiff === 0) {
+                    // Same day submission - don't change streak
+                    // Do nothing
+                } else {
+                    // Missed a day or more - reset streak to 1
+                    user.currentStreak = 1;
+                }
+            }
+            
+            user.lastSubmissionDate = today;
+            await user.save();
+        }
 
         res.status(201).json({
             message: 'Project submitted successfully',
@@ -55,6 +96,7 @@ router.post('/submit-project', authenticateToken, checkSubmissionTime, [
                 description: project.description,
                 liveLink: project.liveLink,
                 githubLink: project.githubLink,
+                technologies: project.technologies,
                 submittedAt: project.createdAt
             }
         });
@@ -75,6 +117,7 @@ router.get('/my-projects', authenticateToken, async (req: AuthRequest, res: Resp
                 description: project.description,
                 liveLink: project.liveLink,
                 githubLink: project.githubLink,
+                technologies: project.technologies,
                 submittedAt: project.createdAt
             }))
         });
@@ -152,6 +195,25 @@ router.get('/admin/participants', authenticateToken, async (req: AuthRequest, re
     }
 });
 
+// Get user streak information
+router.get('/my-streak', authenticateToken, async (req: AuthRequest, res: Response) => {
+    try {
+        const user = await User.findById(req.user!._id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({
+            currentStreak: user.currentStreak,
+            longestStreak: user.longestStreak,
+            lastSubmissionDate: user.lastSubmissionDate,
+            firstSubmissionDate: user.firstSubmissionDate
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Get all projects (for admin or public view)
 router.get('/all', authenticateToken, async (req: AuthRequest, res: Response) => {
     try {
@@ -166,6 +228,7 @@ router.get('/all', authenticateToken, async (req: AuthRequest, res: Response) =>
                 description: project.description,
                 liveLink: project.liveLink,
                 githubLink: project.githubLink,
+                technologies: project.technologies,
                 submittedAt: project.createdAt,
                 user: {
                     name: (project.userId as any).fullName,

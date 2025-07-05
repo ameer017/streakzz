@@ -1,17 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast, { Toaster } from 'react-hot-toast';
-import { X, ExternalLink, Github, Sparkles, Upload, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
-import { projectsAPI } from '../services/api';
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { motion, AnimatePresence } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
+import {
+  X,
+  ExternalLink,
+  Github,
+  Sparkles,
+  Upload,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+} from "lucide-react";
+import { projectsAPI } from "../services/api";
 
 const projectSchema = z.object({
-  name: z.string().min(1, 'Project name is required'),
-  description: z.string().min(50, 'Description must be at least 50 characters'),
-  liveLink: z.string().url('Please enter a valid URL for the live link'),
-  githubLink: z.string().url('Please enter a valid GitHub URL'),
+  name: z.string().min(1, "Project name is required"),
+  description: z.string().min(50, "Description must be at least 50 characters"),
+  liveLink: z.string().url("Please enter a valid URL for the live link"),
+  githubLink: z.string().url("Please enter a valid GitHub URL"),
+  technologies: z
+    .array(z.string())
+    .min(1, "At least one technology must be selected"),
 });
 
 type ProjectFormData = z.infer<typeof projectSchema>;
@@ -21,11 +33,14 @@ interface ProjectSubmissionFormProps {
   onCancel: () => void;
 }
 
-const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess, onCancel }) => {
+const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({
+  onSuccess,
+  onCancel,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [timeRestrictionMessage, setTimeRestrictionMessage] = useState('');
+  const [timeRestrictionMessage, setTimeRestrictionMessage] = useState("");
 
   const {
     register,
@@ -36,7 +51,7 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
     resolver: zodResolver(projectSchema),
   });
 
-  const description = watch('description', '');
+  const description = watch("description", "");
   const descriptionLength = description.length;
 
   // Check time restrictions
@@ -44,11 +59,13 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
     const checkTimeRestriction = () => {
       const now = new Date();
       const hour = now.getHours();
-      
+
       if (hour < 7 || hour >= 24) {
-        setTimeRestrictionMessage('Project submissions are only allowed between 7:00 AM and 11:59 PM');
+        setTimeRestrictionMessage(
+          "Project submissions are only allowed between 7:00 AM and 11:59 PM"
+        );
       } else {
-        setTimeRestrictionMessage('');
+        setTimeRestrictionMessage("");
       }
     };
 
@@ -61,29 +78,29 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
   const onSubmit = async (data: ProjectFormData) => {
     if (timeRestrictionMessage) {
       toast.error(timeRestrictionMessage, {
-        icon: '⏰',
+        icon: "⏰",
         duration: 4000,
       });
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       await projectsAPI.submit(data);
       setSuccess(true);
-      
+
       // Success animation and notification
-      toast.success('Project submitted successfully! 🎉', {
+      toast.success("Project submitted successfully! 🎉", {
         duration: 4000,
         style: {
-          background: '#10B981',
-          color: 'white',
+          background: "#10B981",
+          color: "white",
         },
         iconTheme: {
-          primary: 'white',
-          secondary: '#10B981',
+          primary: "white",
+          secondary: "#10B981",
         },
       });
 
@@ -91,21 +108,22 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
       setTimeout(() => {
         onSuccess();
       }, 2000);
-      
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to submit project. Please try again.';
+      const errorMessage =
+        err.response?.data?.message ||
+        "Failed to submit project. Please try again.";
       setError(errorMessage);
-      
+
       // Error notification
       toast.error(errorMessage, {
         duration: 4000,
         style: {
-          background: '#EF4444',
-          color: 'white',
+          background: "#EF4444",
+          color: "white",
         },
         iconTheme: {
-          primary: 'white',
-          secondary: '#EF4444',
+          primary: "white",
+          secondary: "#EF4444",
         },
       });
     } finally {
@@ -129,13 +147,15 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
           className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
         >
           <CheckCircle className="w-10 h-10 text-green-600" />
         </motion.div>
         <h3 className="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
-        <p className="text-gray-600 mb-4">Your project has been submitted successfully and added to your streak!</p>
+        <p className="text-gray-600 mb-4">
+          Your project has been submitted successfully and added to your streak!
+        </p>
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -150,20 +170,18 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
 
   return (
     <>
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#363636',
-            color: '#fff',
+            background: "#363636",
+            color: "#fff",
           },
         }}
       />
-      
-      <AnimatePresence>
-        {success && <SuccessModal />}
-      </AnimatePresence>
+
+      <AnimatePresence>{success && <SuccessModal />}</AnimatePresence>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -364,7 +382,7 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
 
           .character-counter {
             font-size: 0.75rem;
-            color: ${descriptionLength < 50 ? '#dc2626' : '#16a34a'};
+            color: ${descriptionLength < 50 ? "#dc2626" : "#16a34a"};
             font-weight: 500;
             text-align: right;
             margin-top: 0.25rem;
@@ -486,7 +504,7 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
               Project Name
             </label>
             <input
-              {...register('name')}
+              {...register("name")}
               type="text"
               className="form-input"
               placeholder="Enter your amazing project name"
@@ -501,7 +519,7 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
               Description
             </label>
             <textarea
-              {...register('description')}
+              {...register("description")}
               className="form-textarea"
               placeholder="Tell the world about your project... What makes it special? What problem does it solve?"
             />
@@ -521,7 +539,7 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
             <div className="input-with-icon">
               <ExternalLink className="input-icon h-5 w-5" />
               <input
-                {...register('liveLink')}
+                {...register("liveLink")}
                 type="url"
                 className="form-input"
                 placeholder="https://your-amazing-project.com"
@@ -540,7 +558,7 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
             <div className="input-with-icon">
               <Github className="input-icon h-5 w-5" />
               <input
-                {...register('githubLink')}
+                {...register("githubLink")}
                 type="url"
                 className="form-input"
                 placeholder="https://github.com/username/your-repo"
@@ -551,13 +569,66 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
             )}
           </div>
 
+          <div className="form-group">
+            <label htmlFor="technologies" className="form-label">
+              Technologies Used
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {[
+                "React",
+                "Vue",
+                "Angular",
+                "Node.js",
+                "Express",
+                "JavaScript",
+                "TypeScript",
+                "HTML",
+                "CSS",
+                "Sass",
+                "Tailwind CSS",
+                "Bootstrap",
+                "MongoDB",
+                "AWS",
+                "Git",
+                "Next.js",
+                "Nuxt.js",
+                "GraphQL",
+                "REST API",
+                "Redux",
+                "Vite",
+                "NPM",
+                "Yarn",
+              ].map((tech) => (
+                <label
+                  key={tech}
+                  className="flex items-center space-x-2 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    value={tech}
+                    {...register("technologies")}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                  <span className="text-sm text-gray-700">{tech}</span>
+                </label>
+              ))}
+            </div>
+            {errors.technologies && (
+              <p className="error-message">{errors.technologies.message}</p>
+            )}
+          </div>
+
           <div className="form-actions">
-            <button type="button" onClick={onCancel} className="btn btn-secondary">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="btn btn-secondary"
+            >
               Cancel
             </button>
-            <button 
-              type="submit" 
-              disabled={isLoading || !!timeRestrictionMessage} 
+            <button
+              type="submit"
+              disabled={isLoading || !!timeRestrictionMessage}
               className="btn btn-primary"
             >
               {isLoading ? (
@@ -579,4 +650,4 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({ onSuccess
   );
 };
 
-export default ProjectSubmissionForm; 
+export default ProjectSubmissionForm;

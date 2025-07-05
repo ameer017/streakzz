@@ -40,7 +40,7 @@ export const authAPI = {
 
 // Projects API
 export const projectsAPI = {
-  submit: async (data: { name: string; description: string; liveLink: string; githubLink: string }): Promise<Project> => {
+  submit: async (data: { name: string; description: string; liveLink: string; githubLink: string; technologies: string[] }): Promise<Project> => {
     const response = await api.post('/api/projects/submit-project', data);
     return response.data.project;
   },
@@ -58,6 +58,11 @@ export const projectsAPI = {
   getParticipants: async (): Promise<any[]> => {
     const response = await api.get('/api/projects/admin/participants');
     return response.data.participants;
+  },
+
+  getMyStreak: async (): Promise<any> => {
+    const response = await api.get('/api/projects/my-streak');
+    return response.data;
   },
 };
 

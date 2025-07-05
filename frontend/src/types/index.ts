@@ -11,6 +11,7 @@ export interface Project {
   description: string;
   liveLink: string;
   githubLink: string;
+  technologies: string[];
   submittedAt: string;
   author?: string;
 }
