@@ -11,18 +11,13 @@ A full-stack application for tracking daily project submissions and building str
 
 ### 👤 User Authentication & Management
 - User registration and login
-- Email verification using Nodemailer
 - JWT-based authentication
 - Delete account functionality
 - Admin and participant roles
 
 ### 📊 Dashboard & Analytics
 - Personal dashboard with project submissions
-- 30-day streak visualization with color coding:
-  - **Red (1-10 days)**: Early streak
-  - **Amber (10-20 days)**: Building momentum  
-  - **Green (20-25 days)**: Strong streak
-  - **Super Green (25-30 days)**: Outstanding streak
+- 30-day streak visualization with streak graph
 - Daily motivational quotes
 - Project statistics and metrics
 
@@ -40,10 +35,6 @@ A full-stack application for tracking daily project submissions and building str
 - Sortable and searchable participant data
 - Real-time metrics
 
-### 📧 Email Features
-- Email verification for new accounts
-- Daily project submission reminders (9 AM)
-- Professional email templates
 
 ### 🎨 UI/UX Features
 - Responsive design
@@ -59,8 +50,6 @@ A full-stack application for tracking daily project submissions and building str
 - **MongoDB** with **Mongoose**
 - **TypeScript** for type safety
 - **JWT** for authentication
-- **Nodemailer** for emails
-- **Node-cron** for scheduled tasks
 - **Express-validator** for validation
 
 ### Frontend
@@ -76,7 +65,6 @@ A full-stack application for tracking daily project submissions and building str
 ### Prerequisites
 - Node.js (v18 or higher)
 - MongoDB (local or cloud)
-- Gmail account (for email features)
 
 ### Backend Setup
 
@@ -95,10 +83,6 @@ A full-stack application for tracking daily project submissions and building str
    # JWT Configuration
    JWT_SECRET=your-super-secure-jwt-secret-key-here
    
-   # Email Configuration (Gmail)
-   EMAIL_USER=your-email@gmail.com
-   EMAIL_PASS=your-app-password
-   
    # Frontend URL
    FRONTEND_URL=http://localhost:3000
    
@@ -106,12 +90,7 @@ A full-stack application for tracking daily project submissions and building str
    PORT=1500
    ```
 
-3. **Gmail App Password Setup:**
-   - Enable 2-factor authentication on your Gmail account
-   - Generate an App Password for the application
-   - Use the App Password in the `EMAIL_PASS` field
-
-4. **Start the backend server:**
+3. **Start the backend server:**
    ```bash
    npm run dev
    ```
@@ -130,14 +109,13 @@ A full-stack application for tracking daily project submissions and building str
    ```
 
 3. **Open the application:**
-   Visit `http://localhost:3000` in your browser
+   Visit `http://localhost:5173` in your browser
 
 ## API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - User login
-- `GET /api/auth/verify-email/:token` - Verify email
 - `DELETE /api/auth/delete-account` - Delete user account
 
 ### Projects
@@ -164,9 +142,6 @@ streakzz/
 │   │   │   ├── auth.ts
 │   │   │   ├── projects.ts
 │   │   │   └── users.ts
-│   │   └── services/
-│   │       ├── emailService.ts
-│   │       └── scheduledTasks.ts
 │   ├── package.json
 │   └── tsconfig.json
 ├── frontend/
@@ -192,7 +167,7 @@ streakzz/
 ## Usage
 
 ### For Participants
-1. **Register** with email verification
+1. **Register** with email and password
 2. **Submit daily projects** between 7 AM - 11:59 PM
 3. **Track your streak** with the visual graph
 4. **View project history** in the projects tab
