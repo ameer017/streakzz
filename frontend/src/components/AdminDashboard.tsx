@@ -135,7 +135,7 @@ const AdminDashboard: React.FC = () => {
             {/* Mobile Navigation */}
             <div className="md:hidden">
               <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={logout}
                 className="inline-flex items-center px-2 py-2 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
               >
                 <LogOut className="h-4 w-4" />
@@ -144,23 +144,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-4 pt-2 pb-3 space-y-3 bg-gray-50 border-t">
-              <button
-                onClick={() => {
-                  logout();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full flex items-center px-0 py-3 text-base font-medium text-gray-600 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <LogOut className="h-5 w-5 mr-3" />
-                Logout
-              </button>
-            </div>
-          </div>
-        )}
+       
       </nav>
 
       <div className="flex-1 flex flex-col max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8 w-full">
@@ -170,12 +154,7 @@ const AdminDashboard: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 sm:mb-8 flex-shrink-0"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Admin Dashboard
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600 mb-4">
-            Manage participants and monitor platform activity
-          </p>
+         
 
           <div className="flex items-center space-x-4">
             <div className="text-left sm:text-right">
@@ -185,6 +164,7 @@ const AdminDashboard: React.FC = () => {
                 </p>
               </div>
               <p className="text-xs text-gray-500">{user?.email}</p>
+              <p className="text-xs text-gray-500">Admin</p>
             </div>
           </div>
         </motion.div>
@@ -255,7 +235,7 @@ const AdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white shadow-sm rounded-lg border overflow-hidden flex-1 flex flex-col min-h-0"
+          className="bg-white shadow-sm rounded-lg border flex-1 flex flex-col min-h-0"
         >
           <div className="px-4 sm:px-6 py-4 border-b border-gray-200 flex-shrink-0">
             <h2 className="text-lg font-semibold text-gray-900">
