@@ -22,7 +22,6 @@ const AdminDashboard: React.FC = () => {
     "name" | "projectCount" | "streakCount" | "joinedAt"
   >("streakCount");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchParticipants();
