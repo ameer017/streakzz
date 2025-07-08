@@ -24,7 +24,7 @@ const checkSubmissionTime = (req: AuthRequest, res: Response, next: any) => {
 // Submit a new project
 router.post('/submit-project', authenticateToken, checkSubmissionTime, [
     body('name').trim().isLength({ min: 1 }).withMessage('Project name is required'),
-    body('description').trim().isLength({ min: 50 }).withMessage('Description must be at least 50 characters'),
+    body('description').trim().isLength({ min: 150 }).withMessage('Description must be at least 150 characters'),
     body('liveLink').isURL().withMessage('Please provide a valid live link URL'),
     body('githubLink').isURL().withMessage('Please provide a valid GitHub link URL'),
     body('technologies').isArray({ min: 1 }).withMessage('At least one technology must be selected')

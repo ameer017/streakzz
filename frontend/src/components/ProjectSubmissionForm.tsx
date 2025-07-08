@@ -18,7 +18,7 @@ import { projectsAPI } from "../services/api";
 
 const projectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
-  description: z.string().min(50, "Description must be at least 50 characters"),
+  description: z.string().min(150, "Description must be at least 150 characters"),
   liveLink: z.string().url("Please enter a valid URL for the live link"),
   githubLink: z.string().url("Please enter a valid GitHub URL"),
   technologies: z
@@ -382,7 +382,7 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({
 
           .character-counter {
             font-size: 0.75rem;
-            color: ${descriptionLength < 50 ? "#dc2626" : "#16a34a"};
+            color: ${descriptionLength < 150 ? "#dc2626" : "#16a34a"};
             font-weight: 500;
             text-align: right;
             margin-top: 0.25rem;
@@ -524,7 +524,7 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({
               placeholder="Tell the world about your project... What makes it special? What problem does it solve?"
             />
             <div className="character-counter">
-              {descriptionLength}/50 characters minimum
+              {descriptionLength}/150 characters minimum
             </div>
             {errors.description && (
               <p className="error-message">{errors.description.message}</p>
@@ -580,11 +580,9 @@ const ProjectSubmissionForm: React.FC<ProjectSubmissionFormProps> = ({
                 "Express",
                 "JavaScript",
                 "TypeScript",
-                "HTML",
                 "CSS",
                 "Tailwind CSS",
                 "MongoDB",
-                "AWS",
                 "Git",
                 "Next.js",
                 "REST API",

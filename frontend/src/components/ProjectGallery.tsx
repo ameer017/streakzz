@@ -6,11 +6,12 @@ import {
   Calendar,
   User,
   Search,
-  Filter,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { projectsAPI } from "../services/api";
 import type { Project } from "../types";
+import { useNavigate } from "react-router-dom";
 
 const ProjectGallery: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -22,27 +23,7 @@ const ProjectGallery: React.FC = () => {
     []
   );
   const [sortBy, setSortBy] = useState<"date" | "name">("date");
-
-  // Available technologies for filtering
-  const availableTechnologies = [
-    "React",
-    "Node.js",
-    "Express",
-    "JavaScript",
-    "TypeScript",
-    "HTML",
-    "CSS",
-    "Tailwind CSS",
-    "MongoDB",
-    "AWS",
-    "Git",
-    "Next.js",
-    "REST API",
-    "Redux",
-    "Vite",
-    "NPM",
-    "Yarn",
-  ];
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProjects();
@@ -96,12 +77,6 @@ const ProjectGallery: React.FC = () => {
     setFilteredProjects(filtered);
   };
 
-  const toggleTechnology = (tech: string) => {
-    setSelectedTechnologies((prev) =>
-      prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]
-    );
-  };
-
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedTechnologies([]);
@@ -151,16 +126,24 @@ const ProjectGallery: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-6 flex items-center gap-2 px-4 py-2 bg-white/80 border border-gray-200 rounded-xl shadow hover:bg-gray-100 transition-colors text-black font-medium"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          Back
+        </button>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="text-center mb-12 text-black"
         >
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-black mb-4">
             Project Gallery
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-black max-w-2xl mx-auto">
             Explore amazing projects built by our community. Click on any
             project to visit the live demo!
           </p>
@@ -170,11 +153,11 @@ const ProjectGallery: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/30 mb-8"
+          className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/30 mb-8 max-w-xl mx-auto"
         >
-          <div className="flex flex-col lg:flex-row gap-6">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
             {/* Search */}
-            <div className="flex-1">
+            <div className="flex-1 w-full">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
@@ -186,9 +169,8 @@ const ProjectGallery: React.FC = () => {
                 />
               </div>
             </div>
-
             {/* Sort */}
-            <div className="lg:w-48">
+            <div className="w-full md:w-48">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as "date" | "name")}
@@ -198,9 +180,8 @@ const ProjectGallery: React.FC = () => {
                 <option value="name">Sort by Name</option>
               </select>
             </div>
-
             {/* Clear Filters */}
-            {(searchTerm || selectedTechnologies.length > 0) && (
+            {searchTerm && (
               <button
                 onClick={clearFilters}
                 className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors flex items-center gap-2"
@@ -210,36 +191,11 @@ const ProjectGallery: React.FC = () => {
               </button>
             )}
           </div>
-
-          {/* Technology Filters */}
-          <div className="mt-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Filter className="h-5 w-5 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">
-                Filter by Technology:
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {availableTechnologies.map((tech) => (
-                <button
-                  key={tech}
-                  onClick={() => toggleTechnology(tech)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                    selectedTechnologies.includes(tech)
-                      ? "bg-blue-600 text-white shadow-md"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {tech}
-                </button>
-              ))}
-            </div>
-          </div>
         </motion.div>
 
         {/* Results Count */}
         <div className="mb-6">
-          <p className="text-gray-600">
+          <p className="text-black">
             Showing {filteredProjects.length} of {projects.length} projects
           </p>
         </div>
@@ -252,10 +208,8 @@ const ProjectGallery: React.FC = () => {
             className="text-center py-16"
           >
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/30">
-              <p className="text-xl text-gray-600 mb-2">No projects found</p>
-              <p className="text-gray-500">
-                Try adjusting your search or filters
-              </p>
+              <p className="text-xl text-black mb-2">No projects found</p>
+              <p className="text-black">Try adjusting your search or filters</p>
             </div>
           </motion.div>
         ) : (
@@ -271,10 +225,10 @@ const ProjectGallery: React.FC = () => {
                 <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 h-full flex flex-col">
                   {/* Project Header */}
                   <div className="mb-4">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-xl font-bold text-black mb-2 group-hover:text-blue-600 transition-colors">
                       {project.name}
                     </h3>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <div className="flex items-center gap-4 text-sm text-black">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
                         {formatDate(project.submittedAt)}
@@ -282,14 +236,16 @@ const ProjectGallery: React.FC = () => {
                       {(project.author || project.user?.name) && (
                         <div className="flex items-center gap-1">
                           <User className="h-4 w-4" />
-                          {project.user?.name || project.author}
+                          <span className="text-black">
+                            {project.user?.name || project.author}
+                          </span>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* Description */}
-                  <p className="text-gray-600 mb-4 flex-1 line-clamp-3">
+                  <p className="text-black mb-4 flex-1 line-clamp-3">
                     {project.description}
                   </p>
 
@@ -299,13 +255,13 @@ const ProjectGallery: React.FC = () => {
                       {project.technologies.slice(0, 4).map((tech) => (
                         <span
                           key={tech}
-                          className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium"
+                          className="px-2 py-1 bg-blue-100 text-black text-xs rounded-full font-medium"
                         >
                           {tech}
                         </span>
                       ))}
                       {project.technologies.length > 4 && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                        <span className="px-2 py-1 bg-gray-100 text-black text-xs rounded-full">
                           +{project.technologies.length - 4} more
                         </span>
                       )}
@@ -318,7 +274,7 @@ const ProjectGallery: React.FC = () => {
                       href={project.liveLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center gap-2 group-hover:shadow-lg"
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-black py-2 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center justify-center gap-2 group-hover:shadow-lg"
                     >
                       <ExternalLink className="h-4 w-4" />
                       Live Demo
@@ -327,7 +283,7 @@ const ProjectGallery: React.FC = () => {
                       href={project.githubLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center"
+                      className="px-4 py-2 border border-gray-300 text-black rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center"
                     >
                       <Github className="h-5 w-5" />
                     </a>
