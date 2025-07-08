@@ -6,6 +6,7 @@ import RegisterForm from './components/RegisterForm';
 import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
 import AdminDashboard from './components/AdminDashboard';
+import ProjectGallery from './components/ProjectGallery';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -52,6 +53,7 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/gallery" element={<ProjectGallery />} />
       <Route
         path="/login"
         element={

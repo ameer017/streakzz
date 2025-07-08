@@ -7,6 +7,7 @@ import ProjectSubmissionForm from "./ProjectSubmissionForm";
 import MotivationalQuote from "./MotivationalQuote";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { Link } from "react-router-dom";
 import {
   LogOut,
   Plus,
@@ -189,6 +190,12 @@ const Dashboard: React.FC = () => {
                   <Table className="h-4 w-4 mr-2" />
                   Projects
                 </button>
+                <Link
+                  to="/gallery"
+                  className="inline-flex items-center px-4 py-2 text-sm font-medium border border-gray-300 shadow-sm rounded-lg bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                >
+                  Gallery
+                </Link>
               </div>
             </div>
 

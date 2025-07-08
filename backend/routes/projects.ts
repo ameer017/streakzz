@@ -214,8 +214,8 @@ router.get('/my-streak', authenticateToken, async (req: AuthRequest, res: Respon
     }
 });
 
-// Get all projects (for admin or public view)
-router.get('/all', authenticateToken, async (req: AuthRequest, res: Response) => {
+// Get all projects (for public view)
+router.get('/all', async (req: any, res: Response) => {
     try {
         const projects = await Project.find()
             .populate('userId', 'fullName email')

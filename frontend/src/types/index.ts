@@ -14,6 +14,10 @@ export interface Project {
   technologies: string[];
   submittedAt: string;
   author?: string;
+  user?: {
+    name: string;
+    email: string;
+  };
 }
 
 export interface AuthUser {

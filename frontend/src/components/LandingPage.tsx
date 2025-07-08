@@ -81,6 +81,12 @@ const LandingPage: React.FC = () => {
               >
                 Sign In
               </Link>
+              <Link
+                to="/gallery"
+                className="no-underline bg-gray-100 border border-gray-300 text-gray-700 group px-6 py-3 md:px-8 md:py-3 rounded-2xl font-bold text-base md:text-lg hover:bg-gray-200 transition-all duration-300 transform hover:scale-105 flex items-center min-w-[160px] text-center justify-center"
+              >
+                View Gallery
+              </Link>
             </motion.div>
           </motion.div>
         </div>
