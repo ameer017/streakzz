@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ExternalLink,
-  Github,
   Calendar,
   User,
   Search,
@@ -278,14 +277,6 @@ const ProjectGallery: React.FC = () => {
                     >
                       <ExternalLink className="h-4 w-4" />
                       Live Demo
-                    </a>
-                    <a
-                      href={project.githubLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 border border-gray-300 text-black rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center"
-                    >
-                      <Github className="h-5 w-5" />
                     </a>
                   </div>
                 </div>
