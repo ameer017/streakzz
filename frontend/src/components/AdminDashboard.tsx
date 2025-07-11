@@ -10,6 +10,8 @@ interface Participant {
   email: string;
   projectCount: number;
   streakCount: number;
+  hasReachedThirtyProjects: boolean;
+  points: number;
   joinedAt: string;
 }
 
@@ -274,6 +276,14 @@ const AdminDashboard: React.FC = () => {
                       {sortBy === "streakCount" &&
                         (sortOrder === "asc" ? "↑" : "↓")}
                     </th>
+                    <th
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 whitespace-nowrap"
+                      onClick={() => handleSort("points")}
+                    >
+                      Points{" "}
+                      {sortBy === "points" &&
+                        (sortOrder === "asc" ? "↑" : "↓")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -313,19 +323,33 @@ const AdminDashboard: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${getStreakColor(
-                            participant.streakCount
-                          )}`}
-                        >
-                          <span className="hidden sm:inline">
-                            {participant.streakCount} days (
-                            {getStreakLabel(participant.streakCount)})
+                        <div className="flex flex-col space-y-1">
+                          <span
+                            className={`inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium ${getStreakColor(
+                              participant.streakCount
+                            )}`}
+                          >
+                            <span className="hidden sm:inline">
+                              {participant.streakCount} days (
+                              {getStreakLabel(participant.streakCount)})
+                            </span>
+                            <span className="sm:hidden">
+                              {participant.streakCount}d
+                            </span>
                           </span>
-                          <span className="sm:hidden">
-                            {participant.streakCount}d
+                          {participant.hasReachedThirtyProjects && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                              🏆 30 Projects
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center">
+                          <span className="text-sm font-medium text-yellow-600">
+                            ⭐ {participant.points}
                           </span>
-                        </span>
+                        </div>
                       </td>
                     </motion.tr>
                   ))}

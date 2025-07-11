@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/auth';
 import projectRoutes from './routes/projects';
 import userRoutes from './routes/users';
+import { SchedulerService } from './services/scheduler';
 
 dotenv.config();
 
@@ -41,4 +42,8 @@ connectDB();
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  
+  // Start the automatic cleanup scheduler
+  // Runs every day at 11:59 PM UTC
+  SchedulerService.startCleanupScheduler();
 }); 

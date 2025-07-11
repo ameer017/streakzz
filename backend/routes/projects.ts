@@ -54,35 +54,54 @@ router.post('/submit-project', authenticateToken, checkSubmissionTime, [
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
+            // Get total project count for this user
+            const totalProjects = await Project.countDocuments({ userId: req.user!._id });
+            
+            // Check if user has reached 30 projects (including this submission)
+            const hasReachedThirty = totalProjects >= 30;
+            
+            // If user has reached 30 projects, preserve their streak permanently
+            if (hasReachedThirty && !user.hasReachedThirtyProjects) {
+                user.hasReachedThirtyProjects = true;
+                // Preserve current streak and longest streak - don't reset them
+            }
+            
+            // Award 10 points for this submission
+            user.points += 10;
+            
             const lastSubmission = user.lastSubmissionDate ? new Date(user.lastSubmissionDate) : null;
             if (lastSubmission) {
                 lastSubmission.setHours(0, 0, 0, 0);
             }
 
-            if (!user.firstSubmissionDate) {
-                // First submission ever
-                user.firstSubmissionDate = today;
-                user.currentStreak = 1;
-                user.longestStreak = 1;
-            } else if (!lastSubmission) {
-                // No previous submission (shouldn't happen but just in case)
-                user.currentStreak = 1;
-                user.longestStreak = Math.max(user.longestStreak, 1);
-            } else {
-                const daysDiff = Math.floor((today.getTime() - lastSubmission.getTime()) / (1000 * 60 * 60 * 24));
-                
-                if (daysDiff === 1) {
-                    // Consecutive day - increment streak
-                    user.currentStreak += 1;
-                    user.longestStreak = Math.max(user.longestStreak, user.currentStreak);
-                } else if (daysDiff === 0) {
-                    // Same day submission - don't change streak
-                    // Do nothing
-                } else {
-                    // Missed a day or more - reset streak to 1
+            // Only update streak if user hasn't reached 30 projects or if they're still actively submitting
+            if (!user.hasReachedThirtyProjects) {
+                if (!user.firstSubmissionDate) {
+                    // First submission ever
+                    user.firstSubmissionDate = today;
                     user.currentStreak = 1;
+                    user.longestStreak = 1;
+                } else if (!lastSubmission) {
+                    // No previous submission (shouldn't happen but just in case)
+                    user.currentStreak = 1;
+                    user.longestStreak = Math.max(user.longestStreak, 1);
+                } else {
+                    const daysDiff = Math.floor((today.getTime() - lastSubmission.getTime()) / (1000 * 60 * 60 * 24));
+                    
+                    if (daysDiff === 1) {
+                        // Consecutive day - increment streak
+                        user.currentStreak += 1;
+                        user.longestStreak = Math.max(user.longestStreak, user.currentStreak);
+                    } else if (daysDiff === 0) {
+                        // Same day submission - don't change streak
+                        // Do nothing
+                    } else {
+                        // Missed a day or more - reset streak to 1
+                        user.currentStreak = 1;
+                    }
                 }
             }
+            // If user has reached 30 projects, their streak is preserved and won't be reset
             
             user.lastSubmissionDate = today;
             await user.save();
@@ -138,17 +157,20 @@ router.get('/admin/participants', authenticateToken, async (req: AuthRequest, re
         const participants = await User.find({ 
             role: 'participant', 
             isDeleted: false 
-        }).select('fullName email createdAt');
+        }).select('fullName email createdAt hasReachedThirtyProjects currentStreak longestStreak points');
 
         const participantsWithStats = await Promise.all(
             participants.map(async (participant) => {
                 const projects = await Project.find({ userId: participant._id });
                 
-                // Calculate current streak - simplified approach
+                // Use stored streak data if user has reached 30 projects, otherwise calculate current streak
                 let currentStreak = 0;
                 
-                if (projects.length > 0) {
-                    // Get unique project dates sorted by most recent first
+                if (participant.hasReachedThirtyProjects) {
+                    // User has reached 30 projects - use their preserved streak
+                    currentStreak = participant.currentStreak;
+                } else if (projects.length > 0) {
+                    // Calculate current streak for users who haven't reached 30 projects
                     const projectDates = [...new Set(projects.map(p => 
                         p.createdAt.toISOString().split('T')[0]
                     ))].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
@@ -183,6 +205,8 @@ router.get('/admin/participants', authenticateToken, async (req: AuthRequest, re
                     email: participant.email,
                     projectCount: projects.length,
                     streakCount: currentStreak,
+                    hasReachedThirtyProjects: participant.hasReachedThirtyProjects,
+                    points: participant.points,
                     joinedAt: participant.createdAt,
                 };
             })
@@ -207,7 +231,8 @@ router.get('/my-streak', authenticateToken, async (req: AuthRequest, res: Respon
             currentStreak: user.currentStreak,
             longestStreak: user.longestStreak,
             lastSubmissionDate: user.lastSubmissionDate,
-            firstSubmissionDate: user.firstSubmissionDate
+            firstSubmissionDate: user.firstSubmissionDate,
+            hasReachedThirtyProjects: user.hasReachedThirtyProjects
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });

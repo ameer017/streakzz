@@ -12,6 +12,8 @@ export interface IUser extends Document {
   firstSubmissionDate: Date | null;
   createdAt: Date;
   isDeleted: boolean;
+  hasReachedThirtyProjects: boolean;
+  points: number;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -57,6 +59,14 @@ const UserSchema: Schema = new Schema({
   isDeleted: {
     type: Boolean,
     default: false
+  },
+  hasReachedThirtyProjects: {
+    type: Boolean,
+    default: false
+  },
+  points: {
+    type: Number,
+    default: 0
   },
   createdAt: {
     type: Date,

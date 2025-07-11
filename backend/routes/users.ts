@@ -2,6 +2,8 @@ import express, { Response } from 'express';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 import Project from '../models/Project';
 import User from '../models/User';
+import { UserManagementService } from '../services/userManagement';
+import { SchedulerService } from '../services/scheduler';
 
 const router = express.Router();
 
@@ -48,7 +50,8 @@ router.get('/profile', authenticateToken, async (req: AuthRequest, res: Response
       },
       stats: {
         totalProjects: projects.length,
-        streakData
+        streakData,
+        points: fullUser.points
       }
     });
   } catch (error) {
@@ -99,6 +102,119 @@ router.get('/:userId', async (req: AuthRequest, res: Response) => {
         streakData
       }
     });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get participant statistics (admin only)
+router.get('/admin/stats', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user!;
+    
+    // Check if user is admin
+    const fullUser = await User.findById(user._id);
+    if (!fullUser || fullUser.isDeleted || fullUser.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
+
+    const stats = await UserManagementService.getParticipantStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Cleanup inactive participants (admin only)
+router.post('/admin/cleanup', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user!;
+    
+    // Check if user is admin
+    const fullUser = await User.findById(user._id);
+    if (!fullUser || fullUser.isDeleted || fullUser.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
+
+    const result = await UserManagementService.cleanupInactiveParticipants();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get scheduler status (admin only)
+router.get('/admin/scheduler/status', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user!;
+    
+    // Check if user is admin
+    const fullUser = await User.findById(user._id);
+    if (!fullUser || fullUser.isDeleted || fullUser.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
+
+    const status = SchedulerService.getSchedulerStatus();
+    res.json(status);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Start scheduler (admin only)
+router.post('/admin/scheduler/start', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user!;
+    
+    // Check if user is admin
+    const fullUser = await User.findById(user._id);
+    if (!fullUser || fullUser.isDeleted || fullUser.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
+
+    const { schedule } = req.body;
+    SchedulerService.startCleanupScheduler(schedule);
+    
+    const status = SchedulerService.getSchedulerStatus();
+    res.json({ message: 'Scheduler started successfully', status });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Stop scheduler (admin only)
+router.post('/admin/scheduler/stop', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user!;
+    
+    // Check if user is admin
+    const fullUser = await User.findById(user._id);
+    if (!fullUser || fullUser.isDeleted || fullUser.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
+
+    SchedulerService.stopCleanupScheduler();
+    
+    const status = SchedulerService.getSchedulerStatus();
+    res.json({ message: 'Scheduler stopped successfully', status });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Run cleanup now (admin only)
+router.post('/admin/cleanup/now', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = req.user!;
+    
+    // Check if user is admin
+    const fullUser = await User.findById(user._id);
+    if (!fullUser || fullUser.isDeleted || fullUser.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+    }
+
+    const result = await SchedulerService.runCleanupNow();
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

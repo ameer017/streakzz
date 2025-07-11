@@ -38,5 +38,25 @@ export interface UserProfile {
   stats: {
     totalProjects: number;
     streakData: { [key: string]: number };
+    points: number;
   };
+}
+
+export interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  lastSubmissionDate: string | null;
+  firstSubmissionDate: string | null;
+  hasReachedThirtyProjects: boolean;
+}
+
+export interface Participant {
+  id: string;
+  name: string;
+  email: string;
+  projectCount: number;
+  streakCount: number;
+  hasReachedThirtyProjects: boolean;
+  points: number;
+  joinedAt: string;
 } 
