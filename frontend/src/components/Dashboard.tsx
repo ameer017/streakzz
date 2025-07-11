@@ -163,7 +163,7 @@ const Dashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* View Toggle Buttons */}
-          <div className="mb-6">
+          <div className="mb-4">
             {/* Navigation buttons - responsive layout */}
             <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
               {/* Primary navigation */}
@@ -240,7 +240,7 @@ const Dashboard: React.FC = () => {
               <MotivationalQuote />
 
               {/* Profile Header */}
-              <div className="bg-white shadow rounded-lg p-6">
+              <div className="bg-white shadow rounded-lg p-4">
                 <div className="flex items-center">
                   <div className="bg-primary-100 rounded-full p-3">
                     <User className="h-8 w-8 text-primary-600" />
@@ -252,20 +252,33 @@ const Dashboard: React.FC = () => {
                     <p className="text-gray-600">{userProfile?.user.email}</p>
                     <div className="flex items-center space-x-4 mt-1">
                       <p className="text-sm text-gray-500">
-                        {userProfile?.stats.totalProjects} projects submitted
+                        {userProfile?.stats.totalProjects} projects submitted ||
+                        ⭐ {userProfile?.stats.points || 0} Points
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Streak Graph */}
-              {userProfile && (
-                <StreakGraph streakData={userProfile.stats.streakData} />
-              )}
+              {/* Streak Graph and Points Container */}
+              <div className="bg-white shadow rounded-lg p-6">
+                <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                  {/* Streak Graph */}
+                  <div>
+                    <h3 className="font-semibold text-gray-900 ">
+                      Project Submissions (30 Days)
+                    </h3>
+                    {userProfile && (
+                      <StreakGraph streakData={userProfile.stats.streakData} />
+                    )}
+                  </div>
+
+                  {/* Points Display */}
+                </div>
+              </div>
 
               {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white shadow rounded-lg p-6 text-center">
                   <h3 className="text-sm font-medium text-gray-900">
                     Total Projects
@@ -274,26 +287,7 @@ const Dashboard: React.FC = () => {
                     {userProfile?.stats.totalProjects || 0}
                   </p>
                 </div>
-                <div className="bg-white shadow rounded-lg p-6 text-center">
-                  <h3 className="text-sm font-medium text-gray-900">
-                    This Month
-                  </h3>
-                  <p className="text-3xl font-bold text-green-600 mt-2">
-                    {/* Calculate current month submissions */}
-                    {userProfile
-                      ? Object.entries(userProfile.stats.streakData)
-                          .filter(([date]) => {
-                            const d = new Date(date);
-                            const now = new Date();
-                            return (
-                              d.getMonth() === now.getMonth() &&
-                              d.getFullYear() === now.getFullYear()
-                            );
-                          })
-                          .reduce((sum, [, count]) => sum + count, 0)
-                      : 0}
-                  </p>
-                </div>
+
                 <div className="bg-white shadow rounded-lg p-6 text-center">
                   <h3 className="text-sm font-medium text-gray-900">
                     Current Streak
@@ -301,11 +295,12 @@ const Dashboard: React.FC = () => {
                   <p className="text-3xl font-bold text-orange-600 mt-2">
                     {streakData?.currentStreak || 0}
                   </p>
-                  {streakData?.longestStreak && streakData.longestStreak > streakData.currentStreak && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      Longest: {streakData.longestStreak} days
-                    </p>
-                  )}
+                  {streakData?.longestStreak &&
+                    streakData.longestStreak > streakData.currentStreak && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Longest: {streakData.longestStreak} days
+                      </p>
+                    )}
                   {streakData?.hasReachedThirtyProjects && (
                     <div className="mt-2">
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -314,6 +309,7 @@ const Dashboard: React.FC = () => {
                     </div>
                   )}
                 </div>
+
                 <div className="bg-white shadow rounded-lg p-6 text-center">
                   <h3 className="text-sm font-medium text-gray-900">
                     Longest Streak
@@ -322,15 +318,6 @@ const Dashboard: React.FC = () => {
                     {streakData?.longestStreak || 0}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">days</p>
-                </div>
-                <div className="bg-white shadow rounded-lg p-6 text-center">
-                  <h3 className="text-sm font-medium text-gray-900">
-                    Total Points
-                  </h3>
-                  <p className="text-3xl font-bold text-yellow-600 mt-2">
-                    ⭐ {userProfile?.stats.points || 0}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">10 points per streak day</p>
                 </div>
               </div>
             </div>
@@ -409,23 +396,27 @@ const Dashboard: React.FC = () => {
                                         )}...`
                                       : project.description}
                                   </p>
-                                  {project.technologies && project.technologies.length > 0 && (
-                                    <div className="flex flex-wrap gap-1 mt-2">
-                                      {project.technologies.slice(0, 3).map((tech) => (
-                                        <span
-                                          key={tech}
-                                          className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                                        >
-                                          {tech}
-                                        </span>
-                                      ))}
-                                      {project.technologies.length > 3 && (
-                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                                          +{project.technologies.length - 3} more
-                                        </span>
-                                      )}
-                                    </div>
-                                  )}
+                                  {project.technologies &&
+                                    project.technologies.length > 0 && (
+                                      <div className="flex flex-wrap gap-1 mt-2">
+                                        {project.technologies
+                                          .slice(0, 3)
+                                          .map((tech) => (
+                                            <span
+                                              key={tech}
+                                              className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                            >
+                                              {tech}
+                                            </span>
+                                          ))}
+                                        {project.technologies.length > 3 && (
+                                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                            +{project.technologies.length - 3}{" "}
+                                            more
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
                                   <p className="text-xs text-gray-400 mt-2">
                                     Submitted on{" "}
                                     {new Date(
@@ -439,7 +430,7 @@ const Dashboard: React.FC = () => {
                                 </div>
                               </div>
                             </div>
-                            
+
                             {/* Action Buttons */}
                             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:ml-6">
                               <a
@@ -451,7 +442,9 @@ const Dashboard: React.FC = () => {
                               >
                                 <ExternalLink className="h-4 w-4 mr-2" />
                                 <span className="sm:hidden">Live</span>
-                                <span className="hidden sm:inline">Live Demo</span>
+                                <span className="hidden sm:inline">
+                                  Live Demo
+                                </span>
                               </a>
                               <a
                                 href={project.githubLink}
@@ -462,7 +455,9 @@ const Dashboard: React.FC = () => {
                               >
                                 <Github className="h-4 w-4 mr-2" />
                                 <span className="sm:hidden">Code</span>
-                                <span className="hidden sm:inline">Source Code</span>
+                                <span className="hidden sm:inline">
+                                  Source Code
+                                </span>
                               </a>
                             </div>
                           </div>

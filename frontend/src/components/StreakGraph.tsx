@@ -55,11 +55,7 @@ const StreakGraph: React.FC<StreakGraphProps> = ({ streakData }) => {
   }
 
   return (
-    <div className="bg-white p-4 rounded-lg border">
-      <h3 className="font-semibold text-gray-900 mb-4">
-        Project Submissions (30 Days)
-      </h3>
-      <div className="flex gap-2 justify-center">
+    <div className="flex gap-2 justify-center">
         {weeks.map((week, weekIndex) => (
           <div key={weekIndex} className="flex flex-col gap-1">
             {Array.from({ length: 7 }, (_, dayIndex) => {
@@ -82,7 +78,6 @@ const StreakGraph: React.FC<StreakGraphProps> = ({ streakData }) => {
           </div>
         ))}
       </div>
-    </div>
   );
 };
 
