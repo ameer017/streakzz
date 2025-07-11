@@ -20,9 +20,7 @@ const AdminDashboard: React.FC = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<
-    "name" | "projectCount" | "streakCount" | "joinedAt"
-  >("streakCount");
+  const [sortBy, setSortBy] = useState<"name" | "projectCount" | "streakCount" | "joinedAt" | "points">("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
@@ -67,12 +65,12 @@ const AdminDashboard: React.FC = () => {
         : (bValue as number) - (aValue as number);
     });
 
-  const handleSort = (field: typeof sortBy) => {
+  const handleSort = (field: "name" | "projectCount" | "streakCount" | "joinedAt" | "points") => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortBy(field);
-      setSortOrder("desc");
+      setSortOrder("asc");
     }
   };
 
