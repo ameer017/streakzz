@@ -66,8 +66,19 @@ router.post('/submit-project', authenticateToken, checkSubmissionTime, [
                 // Preserve current streak and longest streak - don't reset them
             }
             
-            // Award 10 points for this submission
-            user.points += 10;
+            // Calculate points based on streak length
+            // Points = current streak * 10 (so a 5-day streak = 50 points)
+            const newPoints = user.currentStreak * 10;
+            
+            // Only award points if this is a new streak milestone or first submission
+            if (!user.lastSubmissionDate || user.currentStreak === 1) {
+                user.points = newPoints;
+            } else {
+                // For consecutive days, award the difference in points
+                const previousPoints = (user.currentStreak - 1) * 10;
+                const pointsDifference = newPoints - previousPoints;
+                user.points += pointsDifference;
+            }
             
             const lastSubmission = user.lastSubmissionDate ? new Date(user.lastSubmissionDate) : null;
             if (lastSubmission) {

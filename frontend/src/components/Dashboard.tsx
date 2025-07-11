@@ -330,7 +330,7 @@ const Dashboard: React.FC = () => {
                   <p className="text-3xl font-bold text-yellow-600 mt-2">
                     ⭐ {userProfile?.stats.points || 0}
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">10 points per project</p>
+                  <p className="text-xs text-gray-500 mt-1">10 points per streak day</p>
                 </div>
               </div>
             </div>
